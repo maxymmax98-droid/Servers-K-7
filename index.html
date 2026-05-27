@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>К-7 Active Servers</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --bg-main: #0b0c10;
+            --bg-panel: #1f2833;
+            --accent: #45f3ff;
+            --accent-glow: rgba(69, 243, 255, 0.4);
+            --text-main: #c5a059;
+            --text-light: #ffffff;
+            --text-muted: #757575;
+            --danger: #ff4757;
+            --success: #2ed573;
+            --card-bg: rgba(31, 40, 51, 0.35);
+        }
+
+        body.light-theme {
+            --bg-main: #f4f6f9;
+            --bg-panel: #ffffff;
+            --accent: #0077ff;
+            --accent-glow: rgba(0, 119, 255, 0.2);
+            --text-main: #b8860b;
+            --text-light: #222222;
+            --text-muted: #888888;
+            --card-bg: rgba(0, 0, 0, 0.04);
+        }
+
+        body.matrix-theme {
+            --bg-main: #000000;
+            --bg-panel: #051a05;
+            --accent: #00ff00;
+            --accent-glow: rgba(0, 255, 0, 0.4);
+            --text-main: #00aa00;
+            --text-light: #00ff00;
+            --text-muted: #005500;
+            --card-bg: rgba(0, 255, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        html, body {
+            overflow-x: hidden !important;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-light);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        .mobile-header {
+            display: none;
+            background: var(--bg-panel);
+            height: 50px;
+            padding: 0 15px;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-size: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: var(--text-light);
+            flex-shrink: 0;
+        }
+
+        .mobile-header i {
+            color: var(--accent);
+            margin-right: 5px;
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-panel);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            flex-shrink: 0;
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 20px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: transparent;
+            border: none;
+            width: 100%;
+            text-align: left;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .nav-item i {
+            font-size: 18px;
+        }
+
+        .nav-item:hover {
+            color: var(--text-light);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .nav-item.active {
+            color: var(--bg-main);
+            background: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .account-box {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .account-box:hover {
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--accent), #7000ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .account-info {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .account-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .account-status {
+            font-size: 11px;
+            color: var(--accent);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 40px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .tab-content {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        .dashboard-layout {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .center-working-area {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .state-container {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .state-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+
+        .state-icon.lock { color: var(--text-muted); }
+        .state-icon.error { color: var(--danger); }
+        .state-icon.process { color: var(--text-main); }
+
+        .state-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .state-desc {
+            color: var(--text-muted);
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .auth-form {
+            max-width: 320px;
+            margin: 20px auto 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .auth-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            color: #fff;
+            outline: none;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .auth-input:focus {
+            border-color: var(--accent);
+        }
+
+        .auth-btn {
+            background: var(--accent);
+            color: var(--bg-main);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .auth-btn:hover {
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: translateY(-1px);
+        }
+
+        .server-card {
+            background: linear-gradient(135deg, rgba(31, 40, 51, 0.6), rgba(31, 40, 51, 0.2));
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: border-color 0.2s;
+            width: 100%;
+        }
+
+        .server-card:hover {
+            border-color: rgba(69, 243, 255, 0.2);
+        }
+
+        .server-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            overflow: hidden;
+        }
+
+        .server-status-indicator {
+            width: 12px;
+            height: 12px;
+            min-width: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            background: var(--text-muted);
+            box-shadow: 0 0 10px rgba(117,117,117,0.5);
+        }
+
+        .server-status-indicator.online {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        .server-status-indicator.maintenance {
+            background: var(--danger);
+            box-shadow: 0 0 10px var(--danger);
+        }
+
+        .server-details h3 {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .server-details p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .btn-action {
+            background: transparent;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+            padding: 12px 30px;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 14px;
+            flex-shrink: 0;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .btn-action:hover {
+            background: var(--accent);
+            color: var(--bg-main);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .form-container-box {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .form-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .form-subtitle {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            font-size: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .form-control {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 16px;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(69, 243, 255, 0.1);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .btn-submit {
+            background: var(--accent);
+            color: var(--bg-main);
+            border: none;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px var(--accent-glow);
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            height: 100%;
+            background: var(--card-bg);
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.03);
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .msg {
+            max-width: 60%;
+            padding: 14px 35px 14px 18px;
+            border-radius: 16px;
+            font-size: 15px;
+            line-height: 1.4;
+            position: relative;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+        }
+
+        .msg.user {
+            background: var(--bg-panel);
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.02);
+        }
+
+        .msg.admin {
+            background: rgba(69, 243, 255, 0.1);
+            color: #fff;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            border: 1px solid rgba(69, 243, 255, 0.2);
+        }
+
+        .msg-sender-tag {
+            font-size: 11px;
+            font-weight: 800;
+            margin-bottom: 4px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .msg-time {
+            font-size: 10px;
+            opacity: 0.4;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .msg-del-btn {
+            position: absolute;
+            top: 14px;
+            right: 12px;
+            cursor: pointer;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            color: var(--danger);
+            padding: 2px;
+        }
+
+        .msg:hover .msg-del-btn {
+            opacity: 1;
+        }
+
+        .chat-input-area {
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            gap: 15px;
+            flex-shrink: 0;
+        }
+
+        .chat-input {
+            flex-grow: 1;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 16px;
+            border-radius: 12px;
+            color: #fff;
+            outline: none;
+        }
+
+        .chat-input:focus {
+            border-color: var(--accent);
+        }
+
+        .btn-send {
+            background: var(--accent);
+            color: var(--bg-main);
+            border: none;
+            padding: 0 25px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .btn-send:hover {
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .theme-selector-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .theme-btn {
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(0,0,0,0.3);
+            color: #fff;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .theme-btn.active {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(69, 243, 255, 0.05);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-panel);
+            padding: 40px 30px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            max-width: 360px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            animation: modalScale 0.3s ease forwards;
+        }
+
+        @keyframes modalScale {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--accent), #7000ff);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .modal-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 25px;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .status-badge.unauth { color: var(--text-muted); background: rgba(255,255,255,0.05); }
+        .status-badge.none { color: var(--accent); background: rgba(69, 243, 255, 0.1); }
+        .status-badge.pending { color: var(--text-main); background: rgba(197, 160, 89, 0.1); }
+        .status-badge.approved { color: var(--success); background: rgba(46, 213, 115, 0.1); }
+        .status-badge.rejected { color: var(--danger); background: rgba(255, 71, 87, 0.1); }
+
+        .btn-close-modal {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-light);
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-close-modal:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .btn-logout {
+            background: var(--danger);
+            color: #fff;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 12px;
+            display: none;
+        }
+
+        .btn-logout:hover {
+            background: #ff3849;
+        }
+
+        #disconnect-layer {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 99999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        @media (max-width: 767px) {
+            body {
+                flex-direction: column;
+            }
+
+            .mobile-header {
+                display: flex;
+            }
+
+            .sidebar {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                height: 75px;
+                flex-direction: row;
+                padding: 0 10px;
+                background: rgba(31, 40, 51, 0.95);
+                backdrop-filter: blur(20px);
+                border-right: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.05);
+                z-index: 999;
+                justify-content: space-around;
+                align-items: center;
+            }
+
+            body.matrix-theme .sidebar {
+                background: rgba(5, 26, 5, 0.95);
+            }
+
+            .logo {
+                display: none;
+            }
+
+            .nav-menu {
+                flex-direction: row;
+                width: calc(100% - 100px);
+                justify-content: space-around;
+                gap: 5px;
+            }
+
+            .nav-item {
+                flex-direction: column;
+                align-items: center;
+                gap: 4px;
+                padding: 8px 0;
+                font-size: 10px;
+                font-weight: 500;
+                border-radius: 0;
+                flex: none;
+                width: 70px;
+                justify-content: center;
+                color: var(--text-muted);
+                background: transparent !important;
+                box-shadow: none !important;
+            }
+
+            .nav-item i {
+                font-size: 18px;
+            }
+
+            .nav-item.active {
+                color: var(--accent);
+            }
+
+            .account-box {
+                margin-top: 0;
+                width: 80px;
+                padding: 5px;
+                background: transparent;
+                border: none;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .account-info {
+                display: none;
+            }
+
+            .avatar {
+                width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+
+            .main-content {
+                position: fixed;
+                top: 50px;
+                bottom: 75px;
+                left: 0;
+                right: 0;
+                padding: 15px;
+                height: auto;
+                overflow: hidden;
+            }
+
+            .tab-content {
+                height: 100%;
+            }
+
+            .dashboard-layout {
+                display: block;
+            }
+
+            .server-card {
+                flex-direction: column;
+                gap: 20px;
+                align-items: center;
+                text-align: center;
+                padding: 20px;
+            }
+
+            .server-info {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .btn-action {
+                width: 100%;
+                text-align: center;
+            }
+
+            .chat-container {
+                height: 100%;
+            }
+
+            .chat-messages {
+                padding: 15px;
+                gap: 10px;
+            }
+
+            .msg {
+                max-width: 80%;
+            }
+
+            .chat-input-area {
+                padding: 12px;
+                gap: 10px;
+            }
+
+            .chat-input {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .btn-send {
+                padding: 0 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="disconnect-layer">
+        <h1 style="color: var(--danger); font-size: 32px; font-weight: 900; text-transform: uppercase; margin-bottom: 10px;">Сервер был отключен</h1>
+        <p style="color: var(--text-muted); font-size: 18px; font-weight: 600;">Технические работы...</p>
+    </div>
+
+    <div class="mobile-header">
+        <i class="fa-solid fa-cubes"></i> К-7 Active Servers
+    </div>
+
+    <aside class="sidebar">
+        <div class="logo">
+            <i class="fa-solid fa-cubes"></i>
+            <span>К-7 Active Servers</span>
+        </div>
+
+        <nav class="nav-menu">
+            <button id="tab-btn-servers" class="nav-item active">
+                <i class="fa-solid fa-server"></i>
+                <span>Сервера</span>
+            </button>
+            <button id="tab-btn-apply" class="nav-item">
+                <i class="fa-solid fa-clipboard-list"></i>
+                <span>Подать заявку</span>
+            </button>
+            <button id="tab-btn-chat" class="nav-item" style="display: none;">
+                <i class="fa-solid fa-comments"></i>
+                <span>Чат с админом</span>
+            </button>
+            <a href="/admin.html" id="admin-link-btn" class="nav-item" style="display: none; text-decoration: none;">
+                <i class="fa-solid fa-user-shield"></i>
+                <span>Админка</span>
+            </a>
+        </nav>
+
+        <div id="account-trigger" class="account-box">
+            <div id="acc-avatar" class="avatar">?</div>
+            <div class="account-info">
+                <span id="acc-name" class="account-name">Гость</span>
+                <span id="acc-status" class="account-status">Войти</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div id="view-servers" class="tab-content active">
+            <div class="dashboard-layout">
+                <div class="center-working-area">
+                    <div id="state-unauth" class="state-container">
+                        <div class="state-icon lock">
+                            <i class="fa-solid fa-user-slash"></i>
+                        </div>
+                        <h2 class="state-title">Авторизуйтесь на сайте</h2>
+                        <p class="state-desc">Чтобы просматривать доступные игровые сервера и управлять своими сессиями тестирования, придумайте анонимный никнейм и пароль.</p>
+                        
+                        <form id="custom-auth-form" class="auth-form">
+                            <input type="text" id="auth-nick" class="auth-input" placeholder="Введите никнейм" required autocomplete="username">
+                            <input type="password" id="auth-pass" class="auth-input" placeholder="Введите пароль" required autocomplete="current-password">
+                            <button type="submit" class="auth-btn">Войти / Создать</button>
+                        </form>
+                    </div>
+
+                    <div id="state-banned" class="state-container" style="display: none; border-color: var(--danger); max-width: 500px; margin: auto;">
+                        <div class="state-icon error">
+                            <i class="fa-solid fa-ban" style="text-shadow: 0 0 15px var(--danger);"></i>
+                        </div>
+                        <h2 class="state-title" style="color: var(--danger); font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Доступ заблокирован</h2>
+                        <p class="state-desc" id="ban-reason-text" style="background: rgba(255,71,87,0.05); padding: 15px; border-radius: 12px; color: #fff; border: 1px solid rgba(255,71,87,0.15); margin-bottom: 25px; font-weight: 600;"></p>
+                        <div id="ban-countdown-box" style="display: inline-flex; gap: 10px; justify-content: center; background: rgba(0,0,0,0.3); padding: 15px 30px; border-radius: 14px; border: 1px dashed var(--danger); font-family: monospace; font-size: 24px; color: var(--danger); font-weight: bold; text-shadow: 0 0 10px rgba(255,71,87,0.3); letter-spacing: 1px;">
+                            00:00
+                        </div>
+                    </div>
+
+                    <div id="state-none" class="state-container" style="display: none;">
+                        <div class="state-icon process">
+                            <i class="fa-solid fa-file-signature"></i>
+                        </div>
+                        <h2 class="state-title">Вы еще не подали заявку</h2>
+                        <p class="state-desc">Вы успешно авторизовались в системе. Пожалуйста, перейдите во вкладку «Подать заявку» слева и отправьте анкету участника на рассмотрение.</p>
+                    </div>
+
+                    <div id="state-pending" class="state-container" style="display: none;">
+                        <div class="state-icon process">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </div>
+                        <h2 class="state-title">Заявка на рассмотрении</h2>
+                        <p class="state-desc">Ваша анкету успешно получена администрацией и находится в очереди проверки. Пожалуйста, ожидайте вердикта.</p>
+                    </div>
+
+                    <div id="state-rejected" class="state-container" style="display: none;">
+                        <div class="state-icon error">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                        </div>
+                        <h2 class="state-title">Заявка отклонена</h2>
+                        <p class="state-desc">Вашу заявку на закрытое тестирование отклонили. Может, в следующий раз повезёт.</p>
+                    </div>
+
+                    <div id="state-no-server" class="state-container" style="display: none;">
+                        <div class="state-icon lock">
+                            <i class="fa-solid fa-server"></i>
+                        </div>
+                        <h2 class="state-title">Нет активных серверов</h2>
+                        <p class="state-desc">В данный момент администрация еще не опубликовала и не запустила игровые миры для тестирования. Пожалуйста, зайдите позже.</p>
+                    </div>
+
+                    <div id="state-approved" class="server-card" style="display: none;">
+                        <div class="server-info">
+                            <div id="srv-indicator" class="server-status-indicator"></div>
+                            <div class="server-details">
+                                <h3 id="srv-name"></h3>
+                                <p id="srv-desc-short" style="color: var(--text-muted); font-size:14px;"></p>
+                            </div>
+                        </div>
+                        <button id="srv-info-trigger-btn" class="btn-action">INF</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-apply" class="tab-content">
+            <div class="form-container-box">
+                <h2 id="apply-title" class="form-title">Закрытый бета-тест</h2>
+                <p id="apply-subtitle" class="form-subtitle">Заполните анкету, чтобы получить ранний доступ к игровым серверам.</p>
+                
+                <div id="apply-info-status" style="color: var(--success); font-weight: bold; margin-bottom: 20px; display: none; background: rgba(46, 213, 115, 0.1); padding: 15px; border-radius: 12px; border: 1px solid rgba(46, 213, 115, 0.2);">
+                    <i class="fa-solid fa-circle-check"></i> Вы уже отправили заявку. Вы можете изменить её данные.
+                </div>
+                
+                <div id="apply-blocked-status" style="color: var(--accent); font-weight: bold; margin-bottom: 20px; display: none; background: rgba(69, 243, 255, 0.1); padding: 15px; border-radius: 12px; border: 1px solid rgba(69, 243, 255, 0.2);">
+                    <i class="fa-solid fa-lock"></i> Вы уже приняты в команду тестеров. Повторная отправка не требуется.
+                </div>
+
+                <form id="apply-form">
+                    <div class="form-group">
+                        <label>Ваш возраст</label>
+                        <input type="number" id="form-age" class="form-control" placeholder="18" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Почему именно вы должны попасть на тест?</label>
+                        <textarea id="form-reason" class="form-control" placeholder="Расскажите о своем опыте в играх или поиске багов..." required></textarea>
+                    </div>
+                    <button type="submit" id="btn-form-submit" class="btn-submit">Отправить заявку</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="view-chat" class="tab-content">
+            <div class="chat-container">
+                <div id="chat-messages-box" class="chat-messages"></div>
+                <div class="chat-input-area">
+                    <input type="text" id="chat-user-input" class="chat-input" placeholder="Напишите сообщение админу...">
+                    <button id="chat-send-btn" class="btn-send">Отправить</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="profile-modal" class="modal">
+        <div class="modal-content">
+            <div id="modal-avatar" class="modal-avatar">?</div>
+            <div id="modal-name" class="modal-name">Гость</div>
+            <div id="modal-email" class="modal-email"></div>
+            
+            <div style="text-align: left; margin-bottom: 15px;">
+                <label style="font-size: 12px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 8px; display: block;">Выбор темы</label>
+                <div class="theme-selector-grid">
+                    <button class="theme-btn" id="theme-btn-dark" onclick="window.changeAppTheme('dark')">Тёмная</button>
+                    <button class="theme-btn" id="theme-btn-light" onclick="window.changeAppTheme('light')">Светлая</button>
+                    <button class="theme-btn" id="theme-btn-matrix" onclick="window.changeAppTheme('matrix')">Матрица</button>
+                </div>
+            </div>
+
+            <div>
+                <span id="modal-badge" class="status-badge unauth">Нет статуса</span>
+            </div>
+            <button id="btn-logout" class="btn-logout">Выйти из аккаунта</button>
+            <button id="btn-close-modal" class="btn-close-modal">Закрыть</button>
+        </div>
+    </div>
+
+    <div id="server-details-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="srv-mdl-name" style="color: var(--accent); font-size: 22px; font-weight: 800; margin-bottom: 12px; text-transform: uppercase;"></h3>
+            <div id="srv-mdl-desc" style="color: var(--text-light); font-size: 14px; line-height: 1.5; margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; text-align: left; max-height: 200px; overflow-y: auto;"></div>
+            <div style="font-size: 14px; margin-bottom: 20px; font-weight: 600;">
+                Текущий статус: <span id="srv-mdl-status"></span>
+            </div>
+            <button id="srv-modal-copy-btn" class="btn-submit" style="padding: 12px; font-size:14px; margin-bottom:15px; width:100%;">Скопировать рум-код</button>
+            <button id="btn-close-srv-modal" class="btn-close-modal">Закрыть</button>
+        </div>
+    </div>
+
+    <div id="custom-alert-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h3 style="color: var(--accent); font-size: 18px; font-weight: 800; margin-bottom: 15px; text-transform: uppercase;">Система</h3>
+            <p id="custom-alert-text" style="font-size: 14px; margin-bottom: 20px; line-height: 1.4; color: #fff;"></p>
+            <button id="btn-close-alert-modal" class="btn-close-modal">ОК</button>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            let appState = 'unauth'; 
+            let currentTab = 'servers';
+            let cachedUser = null;
+            let chatInterval = null;
+            let syncInterval = null;
+            let serverRoomCode = "";
+            let wasBanned = false;
+            let serverConfig = { published: false, name: "", desc: "", status: "offline", roomCode: "" };
+
+            const nodes = {
+                btnServers: document.getElementById('tab-btn-servers'),
+                btnApply: document.getElementById('tab-btn-apply'),
+                btnChat: document.getElementById('tab-btn-chat'),
+                adminLink: document.getElementById('admin-link-btn'),
+                viewServers: document.getElementById('view-servers'),
+                viewApply: document.getElementById('view-apply'),
+                viewChat: document.getElementById('view-chat'),
+                stateUnauth: document.getElementById('state-unauth'),
+                stateBanned: document.getElementById('state-banned'),
+                stateNone: document.getElementById('state-none'),
+                statePending: document.getElementById('state-pending'),
+                stateRejected: document.getElementById('state-rejected'),
+                stateNoServer: document.getElementById('state-no-server'),
+                stateApproved: document.getElementById('state-approved'),
+                accountTrigger: document.getElementById('account-trigger'),
+                profileModal: document.getElementById('profile-modal'),
+                btnCloseModal: document.getElementById('btn-close-modal'),
+                btnLogout: document.getElementById('btn-logout'),
+                accAvatar: document.getElementById('acc-avatar'),
+                accName: document.getElementById('acc-name'),
+                accStatus: document.getElementById('acc-status'),
+                modalAvatar: document.getElementById('modal-avatar'),
+                modalName: document.getElementById('modal-name'),
+                modalEmail: document.getElementById('modal-email'),
+                modalBadge: document.getElementById('modal-badge'),
+                applyForm: document.getElementById('apply-form'),
+                authForm: document.getElementById('custom-auth-form'),
+                chatMessages: document.getElementById('chat-messages-box'),
+                chatInput: document.getElementById('chat-user-input'),
+                chatSendBtn: document.getElementById('chat-send-btn'),
+                applyInfoStatus: document.getElementById('apply-info-status'),
+                applyBlockedStatus: document.getElementById('apply-blocked-status'),
+                btnFormSubmit: document.getElementById('btn-form-submit'),
+                srvIndicator: document.getElementById('srv-indicator'),
+                srvName: document.getElementById('srv-name'),
+                srvDescShort: document.getElementById('srv-desc-short'),
+                srvInfoTriggerBtn: document.getElementById('srv-info-trigger-btn'),
+                srvDetailsModal: document.getElementById('server-details-modal'),
+                btnCloseSrvModal: document.getElementById('btn-close-srv-modal'),
+                srvMdlName: document.getElementById('srv-mdl-name'),
+                srvMdlDesc: document.getElementById('srv-mdl-desc'),
+                srvMdlStatus: document.getElementById('srv-mdl-status'),
+                srvModalCopyBtn: document.getElementById('srv-modal-copy-btn'),
+                banReasonText: document.getElementById('ban-reason-text'),
+                alertModal: document.getElementById('custom-alert-modal'),
+                alertText: document.getElementById('custom-alert-text'),
+                btnCloseAlertModal: document.getElementById('btn-close-alert-modal'),
+                disconnectLayer: document.getElementById('disconnect-layer')
+            };
+
+            function handleDisconnect(isError) {
+                nodes.disconnectLayer.style.display = isError ? 'flex' : 'none';
+            }
+
+            window.addEventListener('contextmenu', e => {
+                if (cachedUser && (cachedUser.role === 'admin' || cachedUser.role === 'creator')) return;
+                e.preventDefault();
+            });
+            
+            window.addEventListener('keydown', e => {
+                if (cachedUser && (cachedUser.role === 'admin' || cachedUser.role === 'creator')) return;
+                if (e.key === 'F12' || 
+                    (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key.toUpperCase())) || 
+                    (e.ctrlKey && e.key.toUpperCase() === 'U')) {
+                    e.preventDefault();
+                }
+            });
+
+            function sysAlert(msg) {
+                nodes.alertText.innerText = msg;
+                nodes.alertModal.classList.add('active');
+            }
+
+            nodes.btnCloseAlertModal.addEventListener('click', () => nodes.alertModal.classList.remove('active'));
+
+            function applyThemeStyles(themeName) {
+                document.body.className = '';
+                document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+                
+                if (themeName === 'light') {
+                    document.body.classList.add('light-theme');
+                    document.getElementById('theme-btn-light').classList.add('active');
+                } else if (themeName === 'matrix') {
+                    document.body.classList.add('matrix-theme');
+                    document.getElementById('theme-btn-matrix').classList.add('active');
+                } else {
+                    document.getElementById('theme-btn-dark').classList.add('active');
+                }
+            }
+
+            window.changeAppTheme = function(themeName) {
+                if (!cachedUser) return;
+                fetch('/api/user/theme', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nickname: cachedUser.nickname, theme: themeName })
+                })
+                .then(res => { handleDisconnect(false); return res.json(); })
+                .then(res => {
+                    if (res.theme) {
+                        cachedUser.theme = res.theme;
+                        applyThemeStyles(res.theme);
+                    }
+                })
+                .catch(() => handleDisconnect(true));
+            };
+
+            function syncWithServer(nickname) {
+                Promise.all([
+                    fetch(`/api/user/sync?nickname=${encodeURIComponent(nickname)}&active=${!document.hidden}`).then(res => {
+                        if (res.status === 404) {
+                            localStorage.removeItem('cached_core_user');
+                            document.body.className = '';
+                            alert('Ваш аккаунт удалили');
+                            window.location.reload();
+                            throw new Error('Deleted');
+                        }
+                        if (!res.ok) { logoutUser(); throw new Error(); }
+                        return res.json();
+                    }),
+                    fetch('/api/servers').then(res => res.json())
+                ])
+                .then(([user, srv]) => {
+                    handleDisconnect(false);
+                    cachedUser = user;
+                    if (user.banned) appState = 'banned';
+                    else appState = user.status;
+                    serverConfig = srv;
+                    updateUI();
+                })
+                .catch((err) => {
+                    if (err.message !== 'Deleted') handleDisconnect(true);
+                });
+            }
+
+            function runRealtimeSync(nickname) {
+                if (syncInterval) clearInterval(syncInterval);
+                syncWithServer(nickname);
+                syncInterval = setInterval(() => syncWithServer(nickname), 1000);
+            }
+
+            function logoutUser() {
+                if (appState === 'banned') return;
+                localStorage.removeItem('cached_core_user');
+                appState = 'unauth';
+                cachedUser = null;
+                document.body.className = '';
+                if (chatInterval) { clearInterval(chatInterval); chatInterval = null; }
+                if (syncInterval) { clearInterval(syncInterval); syncInterval = null; }
+                updateUI();
+                nodes.profileModal.classList.remove('active');
+                switchTab('servers');
+            }
+
+            nodes.btnLogout.addEventListener('click', logoutUser);
+
+            nodes.authForm.addEventListener('submit', e => {
+                e.preventDefault();
+                const nickname = document.getElementById('auth-nick').value.trim();
+                const password = document.getElementById('auth-pass').value.trim();
+
+                fetch('/api/user/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nickname, password })
+                })
+                .then(res => {
+                    handleDisconnect(false);
+                    if (!res.ok) {
+                        return res.json().then(err => {
+                            sysAlert(err.error || 'Ошибка соединения с сервером');
+                            throw new Error(err.error);
+                        });
+                    }
+                    return res.json();
+                })
+                .then(user => {
+                    cachedUser = user;
+                    if (user.banned) appState = 'banned';
+                    else appState = user.status;
+                    localStorage.setItem('cached_core_user', user.nickname);
+                    if (user.formData) {
+                        document.getElementById('form-age').value = user.formData.age;
+                        document.getElementById('form-reason').value = user.formData.reason;
+                    }
+                    applyThemeStyles(user.theme || 'dark');
+                    updateUI();
+                    runRealtimeSync(user.nickname);
+                })
+                .catch(err => {
+                    if (err.message !== 'Auth failed') handleDisconnect(true);
+                });
+            });
+
+            function updateUI() {
+                nodes.stateUnauth.style.display = 'none';
+                nodes.stateBanned.style.display = 'none';
+                nodes.stateNone.style.display = 'none';
+                nodes.statePending.style.display = 'none';
+                nodes.stateRejected.style.display = 'none';
+                nodes.stateNoServer.style.display = 'none';
+                nodes.stateApproved.style.display = 'none';
+                nodes.btnChat.style.display = 'none';
+                nodes.adminLink.style.display = 'none';
+                nodes.btnLogout.style.display = 'none';
+                nodes.applyInfoStatus.style.display = 'none';
+                nodes.applyBlockedStatus.style.display = 'none';
+                nodes.btnFormSubmit.style.display = 'block';
+                nodes.btnFormSubmit.innerText = 'Отправить заявку';
+                nodes.applyForm.style.display = 'block';
+
+                nodes.modalBadge.className = 'status-badge';
+
+                if (appState === 'unauth') {
+                    nodes.stateUnauth.style.display = 'block';
+                    nodes.accAvatar.innerText = '?';
+                    nodes.accName.innerText = 'Гость';
+                    nodes.accStatus.innerText = 'Войти';
+                    nodes.accStatus.style.color = 'var(--text-muted)';
+                    nodes.modalAvatar.innerText = '?';
+                    nodes.modalName.innerText = 'Гость';
+                    nodes.modalEmail.innerText = 'Для доступа нужен аккаунт';
+                    nodes.modalBadge.innerText = 'Нет статуса';
+                    nodes.modalBadge.classList.add('unauth');
+                    if (chatInterval) { clearInterval(chatInterval); chatInterval = null; }
+                } else if (appState === 'banned') {
+                    nodes.stateBanned.style.display = 'block';
+                    nodes.banReasonText.innerText = "Причина: " + cachedUser.banReason;
+                    
+                    const timerBox = document.getElementById('ban-countdown-box');
+                    if (cachedUser.banExpires > 0) {
+                        let diff = cachedUser.banRemaining;
+                        if (diff > 0) {
+                            let mins = Math.floor(diff / 60000);
+                            let secs = Math.floor((diff % 60000) / 1000);
+                            timerBox.innerText = (mins < 10 ? "0" : "") + mins + ":" + (secs < 10 ? "0" : "") + secs;
+                        } else {
+                            timerBox.innerText = "ОБНОВЛЕНИЕ...";
+                        }
+                    } else {
+                        timerBox.innerText = "НАВСЕГДА";
+                    }
+                    
+                    nodes.accAvatar.innerText = cachedUser.nickname.substring(0, 2).toUpperCase();
+                    nodes.accName.innerText = cachedUser.nickname;
+                    nodes.accStatus.innerText = 'Забанен';
+                    nodes.accStatus.style.color = 'var(--danger)';
+                    nodes.modalAvatar.innerText = cachedUser.nickname.substring(0, 2).toUpperCase();
+                    nodes.modalName.innerText = cachedUser.nickname;
+                    nodes.modalEmail.innerText = '';
+                    nodes.modalBadge.innerText = 'Забанен';
+                    nodes.modalBadge.classList.add('rejected');
+                    if (chatInterval) { clearInterval(chatInterval); chatInterval = null; }
+                    if (currentTab !== 'servers') switchTab('servers');
+                } else {
+                    nodes.btnLogout.style.display = 'block';
+                    
+                    let roleTag = "Тестер";
+                    let roleColor = 'var(--accent)';
+                    if (cachedUser.role === 'admin') { roleTag = "Админ"; roleColor = 'var(--success)'; }
+                    if (cachedUser.role === 'creator') { roleTag = "Создатель"; roleColor = 'var(--text-main)'; }
+                    if (cachedUser.status !== 'approved' && cachedUser.role === 'user') { roleTag = 'Авторизован'; }
+
+                    nodes.accAvatar.innerText = cachedUser.nickname.substring(0, 2).toUpperCase();
+                    nodes.accName.innerText = cachedUser.nickname;
+                    nodes.accStatus.innerText = roleTag;
+                    nodes.accStatus.style.color = roleColor;
+                    
+                    nodes.modalAvatar.innerText = cachedUser.nickname.substring(0, 2).toUpperCase();
+                    nodes.modalName.innerText = cachedUser.nickname;
+                    nodes.modalEmail.innerText = roleTag;
+                    nodes.btnChat.style.display = 'flex';
+
+                    if (cachedUser.formData && appState !== 'approved') {
+                        nodes.applyInfoStatus.style.display = 'block';
+                        nodes.btnFormSubmit.innerText = 'Сохранить изменения';
+                    }
+
+                    if (cachedUser.role === 'admin' || cachedUser.role === 'creator') {
+                        nodes.adminLink.style.display = 'flex';
+                    }
+
+                    if (appState === 'none') {
+                        nodes.stateNone.style.display = 'block';
+                        nodes.modalBadge.innerText = 'Авторизован';
+                        nodes.modalBadge.classList.add('none');
+                    } else if (appState === 'pending') {
+                        nodes.statePending.style.display = 'block';
+                        nodes.modalBadge.innerText = 'На рассмотрении';
+                        nodes.modalBadge.classList.add('pending');
+                    } else if (appState === 'rejected') {
+                        nodes.stateRejected.style.display = 'block';
+                        nodes.modalBadge.innerText = 'Отклонена заявка';
+                        nodes.modalBadge.classList.add('rejected');
+                    } else if (appState === 'approved') {
+                        nodes.applyBlockedStatus.style.display = 'block';
+                        nodes.applyForm.style.display = 'none';
+                        
+                        let displayBadge = 'Тестер';
+                        if (cachedUser.role === 'admin') displayBadge = 'Админ';
+                        if (cachedUser.role === 'creator') displayBadge = 'Создатель';
+                        nodes.modalBadge.innerText = displayBadge;
+                        nodes.modalBadge.classList.add('approved');
+
+                        if (!serverConfig.published) {
+                            nodes.stateNoServer.style.display = 'block';
+                        } else {
+                            nodes.stateApproved.style.display = 'flex';
+                            nodes.srvName.innerText = serverConfig.name;
+                            nodes.srvDescShort.innerText = "Нажмите INF для просмотра конфигурации";
+                            serverRoomCode = serverConfig.roomCode;
+                            nodes.srvIndicator.className = 'server-status-indicator';
+                            if (serverConfig.status === 'online') nodes.srvIndicator.classList.add('online');
+                            if (serverConfig.status === 'maintenance') nodes.srvIndicator.classList.add('maintenance');
+                        }
+                    }
+
+                    if (!chatInterval) {
+                        loadMessages();
+                        chatInterval = setInterval(loadMessages, 1000);
+                    }
+                }
+            }
+
+            nodes.srvInfoTriggerBtn.addEventListener('click', e => {
+                nodes.srvMdlName.innerText = serverConfig.name;
+                nodes.srvMdlDesc.innerHTML = serverConfig.desc;
+                
+                let text = "Выключен";
+                let color = "var(--text-muted)";
+                if (serverConfig.status === 'online') { text = "Запущен"; color = "var(--success)"; }
+                if (serverConfig.status === 'maintenance') { text = "Технические работы"; color = "var(--danger)"; }
+                
+                nodes.srvMdlStatus.innerText = text;
+                nodes.srvMdlStatus.style.color = color;
+                nodes.srvDetailsModal.classList.add('active');
+            });
+
+            nodes.btnCloseSrvModal.addEventListener('click', () => nodes.srvDetailsModal.classList.remove('active'));
+            nodes.srvDetailsModal.addEventListener('click', e => { if (e.target === nodes.srvDetailsModal) nodes.srvDetailsModal.classList.remove('active'); });
+
+            nodes.srvModalCopyBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(serverRoomCode);
+                sysAlert('Рум-код скопирован в буфер обмена!');
+            });
+
+            function switchTab(tab) {
+                if (appState === 'banned' && tab !== 'servers') return;
+                currentTab = tab;
+                nodes.btnServers.classList.remove('active');
+                nodes.btnApply.classList.remove('active');
+                nodes.btnChat.classList.remove('active');
+                nodes.viewServers.classList.remove('active');
+                nodes.viewApply.classList.remove('active');
+                nodes.viewChat.classList.remove('active');
+
+                if (tab === 'servers') {
+                    nodes.btnServers.classList.add('active');
+                    nodes.viewServers.classList.add('active');
+                } else if (tab === 'apply') {
+                    nodes.btnApply.classList.add('active');
+                    nodes.viewApply.classList.add('active');
+                } else if (tab === 'chat') {
+                    nodes.btnChat.classList.add('active');
+                    nodes.viewChat.classList.add('active');
+                    setTimeout(() => { nodes.chatMessages.scrollTop = nodes.chatMessages.scrollHeight; }, 100);
+                }
+            }
+
+            window.deleteMyMessage = function(msgId) {
+                fetch('/api/chat/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nickname: cachedUser.nickname, msgId, requester: 'user' })
+                })
+                .then(res => { handleDisconnect(false); return res.json(); })
+                .then(res => { loadMessages(); })
+                .catch(() => handleDisconnect(true));
+            };
+
+            function loadMessages() {
+                if (!cachedUser || appState === 'banned') return;
+                fetch(`/api/chat/get?nickname=${encodeURIComponent(cachedUser.nickname)}`)
+                .then(res => { handleDisconnect(false); return res.json(); })
+                .then(messages => {
+                    const scrolledDown = nodes.chatMessages.scrollHeight - nodes.chatMessages.scrollTop <= nodes.chatMessages.clientHeight + 50;
+                    nodes.chatMessages.innerHTML = '';
+                    messages.forEach(msg => {
+                        const m = document.createElement('div');
+                        m.className = `msg ${msg.sender}`;
+                        
+                        let tagLabel = "Тестер";
+                        let tagColor = "var(--accent)";
+                        if (msg.sender === 'admin') {
+                            tagLabel = "Администрация";
+                            tagColor = "var(--text-main)";
+                        } else if (cachedUser.role === 'creator') {
+                            tagLabel = "Создатель";
+                            tagColor = "#ff007f";
+                        } else if (cachedUser.role === 'admin') {
+                            tagLabel = "Админ";
+                            tagColor = "var(--success)";
+                        }
+
+                        let delHtml = msg.sender === 'user' ? `<i class="fa-solid fa-trash msg-del-btn" onclick="window.deleteMyMessage('${msg.id}')"></i>` : '';
+                        m.innerHTML = `${delHtml}<span class="msg-sender-tag" style="color:${tagColor}">${tagLabel}</span>${msg.text}<div class="msg-time">${msg.time}</div>`;
+                        nodes.chatMessages.appendChild(m);
+                    });
+                    if (scrolledDown) {
+                        nodes.chatMessages.scrollTop = nodes.chatMessages.scrollHeight;
+                    }
+                })
+                .catch(() => handleDisconnect(true));
+            }
+
+            function sendChatMessage() {
+                const text = nodes.chatInput.value.trim();
+                if (!text || !cachedUser || appState === 'banned') return;
+                fetch('/api/chat/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nickname: cachedUser.nickname, text, sender: 'user' })
+                })
+                .then(res => { handleDisconnect(false); return res.json(); })
+                .then(res => {
+                    if (res.success) {
+                        nodes.chatInput.value = '';
+                        loadMessages();
+                    }
+                })
+                .catch(() => handleDisconnect(true));
+            }
+
+            nodes.chatSendBtn.addEventListener('click', sendChatMessage);
+            nodes.chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendChatMessage(); });
+
+            nodes.btnServers.addEventListener('click', () => switchTab('servers'));
+            nodes.btnApply.addEventListener('click', () => switchTab('apply'));
+            nodes.btnChat.addEventListener('click', () => switchTab('chat'));
+            nodes.accountTrigger.addEventListener('click', () => nodes.profileModal.classList.add('active'));
+            nodes.btnCloseModal.addEventListener('click', () => nodes.profileModal.classList.remove('active'));
+            nodes.profileModal.addEventListener('click', e => { if (e.target === nodes.profileModal) nodes.profileModal.classList.remove('active'); });
+
+            nodes.applyForm.addEventListener('submit', e => {
+                e.preventDefault();
+                if (appState === 'unauth' || appState === 'banned' || appState === 'approved') return;
+                fetch('/api/user/apply', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        currentAuthName: cachedUser.nickname,
+                        age: document.getElementById('form-age').value,
+                        reason: document.getElementById('form-reason').value.trim()
+                    })
+                })
+                .then(res => {
+                    handleDisconnect(false);
+                    if (!res.ok) {
+                        return res.json().then(err => { sysAlert(err.error); throw new Error(); });
+                    }
+                    return res.json();
+                })
+                .then(res => {
+                    if (res.success) {
+                        cachedUser = res.user;
+                        appState = 'pending';
+                        updateUI();
+                        switchTab('servers');
+                    }
+                })
+                .catch(() => {});
+            });
+
+            const savedUser = localStorage.getItem('cached_core_user');
+            if (savedUser) {
+                fetch(`/api/user/sync?nickname=${encodeURIComponent(savedUser)}&active=${!document.hidden}`)
+                .then(res => {
+                    handleDisconnect(false);
+                    if (res.ok) return res.json();
+                    else throw new Error();
+                })
+                .then(user => {
+                    cachedUser = user;
+                    if (user.banned) appState = 'banned';
+                    else appState = user.status;
+                    if (user.formData) {
+                        document.getElementById('form-age').value = user.formData.age;
+                        document.getElementById('form-reason').value = user.formData.reason;
+                    }
+                    applyThemeStyles(user.theme || 'dark');
+                    updateUI();
+                    runRealtimeSync(user.nickname);
+                })
+                .catch(() => {
+                    localStorage.removeItem('cached_core_user');
+                    updateUI();
+                });
+            } else {
+                updateUI();
+            }
+        })();
+    </script>
+</body>
+</html>
